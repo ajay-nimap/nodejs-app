@@ -15,9 +15,14 @@ const db = mysql.createConnection({
     database: "nodejs_login"
 });
 
-db.connect(err => {
-    if (err) throw err;
-    console.log("MySQL Connected");
+db.connect((err) => {
+  if (err) {
+    console.log("MySQL not ready, retrying...");
+    setTimeout(connectDB, 5000);
+    return;
+  }
+
+  console.log("MySQL Connected");
 });
 
 // Show form
