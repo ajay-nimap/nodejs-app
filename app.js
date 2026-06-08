@@ -5,58 +5,62 @@ const bodyParser = require("body-parser");
 const app = express();
 
 app.set("view engine", "ejs");
-
 app.use(bodyParser.urlencoded({ extended: true }));
 
-const db = mysql.createConnection({
-    host: "mysql",
+let db;
+
+// =======================
+// DB CONNECTION (RETRY SAFE)
+// =======================
+function connectDB() {
+  db = mysql.createConnection({
+    host: "mysql",      // Docker service name
     user: "root",
     password: "root",
     database: "nodejs_login"
-});
+  });
 
-db.connect((err) => {
-  if (err) {
-    console.log("MySQL not ready, retrying...");
-    setTimeout(connectDB, 5000);
-    return;
-  }
+  db.connect((err) => {
+    if (err) {
+      console.log("MySQL not ready, retrying in 5 seconds...");
+      setTimeout(connectDB, 5000);
+      return;
+    }
 
-  console.log("MySQL Connected");
-});
-db();
+    console.log("MySQL Connected");
+  });
+}
 
-module.exports = db;
+connectDB();
 
-// Show form
+// =======================
+// ROUTES
+// =======================
+
+// Home route (optional safety page)
 app.get("/", (req, res) => {
-    res.render("index");
-});
-
-// Save data
-app.post("/add-user", (req, res) => {
-    const { name, email } = req.body;
-
-    const sql = "INSERT INTO users (name, email) VALUES (?, ?)";
-
-    db.query(sql, [name, email], (err, result) => {
-        if (err) throw err;
-
-        res.send("User Added Successfully");
-    });
+  res.send("Server is running");
 });
 
 // View all users
 app.get("/users", (req, res) => {
-    db.query("SELECT * FROM users", (err, results) => {
-        if (err) throw err;
+  if (!db) {
+    return res.send("Database not connected yet, try again...");
+  }
 
-        res.render("users", {
-            users: results
-        });
-    });
+  db.query("SELECT * FROM users", (err, results) => {
+    if (err) {
+      console.log("Query error:", err.message);
+      return res.send("Database error");
+    }
+
+    res.render("users", { users: results });
+  });
 });
 
+// =======================
+// START SERVER
+// =======================
 app.listen(3000, () => {
-    console.log("Server running on port 3000");
+  console.log("Server running on port 3000");
 });
