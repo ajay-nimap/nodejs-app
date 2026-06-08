@@ -24,6 +24,9 @@ db.connect((err) => {
 
   console.log("MySQL Connected");
 });
+connectDB();
+
+module.exports = db;
 
 // Show form
 app.get("/", (req, res) => {
