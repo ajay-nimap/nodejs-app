@@ -5,13 +5,11 @@ const bodyParser = require("body-parser");
 const app = express();
 
 app.set("view engine", "ejs");
+
 app.use(bodyParser.urlencoded({ extended: true }));
 
 let db;
 
-// =======================
-// DB CONNECTION (RETRY SAFE)
-// =======================
 function connectDB() {
   db = mysql.createConnection({
     host: "mysql",      // Docker service name
@@ -33,34 +31,35 @@ function connectDB() {
 
 connectDB();
 
-// =======================
-// ROUTES
-// =======================
-
-// Home route (optional safety page)
+// Show form
 app.get("/", (req, res) => {
-  res.send("Server is running");
+    res.render("index");
+});
+
+// Save data
+app.post("/add-user", (req, res) => {
+    const { name, email } = req.body;
+
+    const sql = "INSERT INTO users (name, email) VALUES (?, ?)";
+
+    db.query(sql, [name, email], (err, result) => {
+        if (err) throw err;
+
+        res.send("User Added Successfully");
+    });
 });
 
 // View all users
 app.get("/users", (req, res) => {
-  if (!db) {
-    return res.send("Database not connected yet, try again...");
-  }
+    db.query("SELECT * FROM users", (err, results) => {
+        if (err) throw err;
 
-  db.query("SELECT * FROM users", (err, results) => {
-    if (err) {
-      console.log("Query error:", err.message);
-      return res.send("Database error");
-    }
-
-    res.render("users", { users: results });
-  });
+        res.render("users", {
+            users: results
+        });
+    });
 });
 
-// =======================
-// START SERVER
-// =======================
 app.listen(3000, () => {
-  console.log("Server running on port 3000");
+    console.log("Server running on port 3000");
 });
