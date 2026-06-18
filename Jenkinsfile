@@ -1,55 +1,53 @@
 pipeline {
- agent {
+    agent {
         label 'windows'
     }
 
-environment {
-    IMAGE_NAME = "node-app"
-}
+    environment {
+        IMAGE_NAME = "node-app"
+    }
 
-stages {
+    stages {
 
-    stage('Checkout') {
-        steps {
-            checkout scm
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                bat 'npm install'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                bat 'npm test'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                bat 'docker build -t %IMAGE_NAME% .'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                bat 'docker compose down'
+                bat 'docker compose up -d --build'
+            }
         }
     }
 
-    stage('Install Dependencies') {
-        steps {
-            sh 'npm install'
+    post {
+        success {
+            echo 'Deployment successful'
+        }
+
+        failure {
+            echo 'Pipeline failed'
         }
     }
-
-    stage('Test') {
-        steps {
-            sh 'npm test || true'
-        }
-    }
-
-    stage('Build Docker Image') {
-        steps {
-            sh 'docker build -t $IMAGE_NAME .'
-        }
-    }
-
-    stage('Deploy') {
-        steps {
-            sh 'docker compose down || true'
-            sh 'docker compose up -d --build'
-        }
-    }
-}
-
-post {
-    success {
-        echo 'Deployment successful'
-    }
-
-    failure {
-        echo 'Pipeline failed'
-    }
-}
-
-
 }
