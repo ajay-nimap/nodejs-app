@@ -1,5 +1,5 @@
 pipeline {
-agent any
+label windows
 
 environment {
     IMAGE_NAME = "node-app"
