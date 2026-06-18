@@ -4,12 +4,12 @@ pipeline {
     }
 
     environment {
-        IMAGE_NAME = "node-app"
+        IMAGE_NAME = 'node-app'
     }
 
     stages {
 
-        stage('Checkout') {
+        stage('Checkout Source Code') {
             steps {
                 checkout scm
             }
@@ -21,7 +21,7 @@ pipeline {
             }
         }
 
-        stage('Test') {
+        stage('Run Tests') {
             steps {
                 bat 'npm test'
             }
@@ -33,9 +33,9 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
+        stage('Deploy Application') {
             steps {
-                bat 'docker compose down'
+                bat 'docker compose down || exit /b 0'
                 bat 'docker compose up -d --build'
             }
         }
@@ -43,11 +43,15 @@ pipeline {
 
     post {
         success {
-            echo 'Deployment successful'
+            echo 'Application deployed successfully.'
         }
 
         failure {
-            echo 'Pipeline failed'
+            echo 'Pipeline execution failed.'
+        }
+
+        always {
+            echo 'Pipeline execution completed.'
         }
     }
 }
