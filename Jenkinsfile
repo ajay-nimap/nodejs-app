@@ -24,13 +24,13 @@ pipeline {
         stage('Build Docker Image') {
              agent { label 'built-in' }
             steps {
-                sh 'docker build -t %IMAGE_NAME% .'
+                sh 'docker build -t IMAGE_NAME .'
             }
         }
 
         stage('Deploy Application') {
             steps {
-                sh 'docker compose down || exit /b 0'
+                sh 'docker compose down || exit'
                 sh 'docker compose up -d --build'
             }
         }
