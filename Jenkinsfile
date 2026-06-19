@@ -24,14 +24,14 @@ pipeline {
         stage('Build Docker Image') {
              agent { label 'built-in' }
             steps {
-                sh 'docker build -t %IMAGE_NAME% .'
+                bat 'docker build -t %IMAGE_NAME% .'
             }
         }
 
         stage('Deploy Application') {
             steps {
-                sh 'docker compose down || exit /b 0'
-                sh 'docker compose up -d --build'
+                bat 'docker compose down || exit /b 0'
+                bat 'docker compose up -d --build'
             }
         }
     }
