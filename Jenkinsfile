@@ -24,7 +24,7 @@ pipeline {
         stage('Build Docker Image') {
              agent { label 'built-in' }
             steps {
-                sh 'docker build -t IMAGE_NAME .'
+                sh 'docker build -t ${IMAGE_NAME} .'
             }
         }
 
