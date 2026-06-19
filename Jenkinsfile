@@ -22,7 +22,6 @@ pipeline {
         }
 
         stage('Build Docker Image') {
-             agent { label 'windows' }
             steps {
                 bat 'docker build -t %IMAGE_NAME% .'
             }
