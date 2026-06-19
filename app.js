@@ -1,7 +1,7 @@
 const express = require("express");
 const mysql = require("mysql2");
 const bodyParser = require("body-parser");
-
+const client = require("prom-client");
 const app = express();
 
 app.set("view engine", "ejs");
@@ -59,6 +59,17 @@ app.get("/users", (req, res) => {
         });
     });
 });
+
+//Prometheus
+
+// Collect default Node.js metrics
+client.collectDefaultMetrics();
+
+app.get("/metrics", async (req, res) => {
+    res.set("Content-Type", client.register.contentType);
+    res.end(await client.register.metrics());
+});
+
 
 app.listen(3000, "0.0.0.0", () => {
   console.log("Server running on port 3000");
