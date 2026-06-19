@@ -29,7 +29,6 @@ pipeline {
         }
 
         stage('Deploy Application') {
-             agent { label 'built-in' }
             steps {
                 sh 'docker compose down || exit'
                 sh 'docker compose up -d --build'
